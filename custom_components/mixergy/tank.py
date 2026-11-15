@@ -441,6 +441,14 @@ class Tank:
                 heat_source = current["heat_source"].lower()
                 heat_source_on = current["immersion"].lower() == "on"
 
+                # "current" is what's requested; "relay" is whether the element is
+                # actually switched on. During a cleansing cycle on an already-hot
+                # tank it's requested On but the relay stays Off (overheat
+                # protection), so trust the relay when it's reported.
+                relay = state.get("relay") or {}
+                if "immersion" in relay:
+                    heat_source_on = heat_source_on and relay["immersion"].lower() == "on"
+
                 if heat_source == "indirect":
                     self._electric_heat_source = False
                     self._heatpump_heat_source = False
